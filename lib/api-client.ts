@@ -1,8 +1,7 @@
 /**
  * SkinLink REST API client for the Next.js web app.
- * Set NEXT_PUBLIC_API_URL=http://localhost:8000 to point at the FastAPI backend.
+ * API base URL is hardcoded — no .env / environment variable needed.
  */
-
 import type {
   DermCase,
   FollowUp,
@@ -13,20 +12,7 @@ import type {
   User,
 } from "./types"
 
-const rawApiBase = process.env.NEXT_PUBLIC_API_URL ?? "https://skinlinkbackendapp-production.up.railway.app"
-const API_BASE = rawApiBase.replace(/\/+$/, "")
-
-// Debugging aid: log resolved API base at runtime in the browser so we can
-// confirm what value Vercel inlined at build time. This is intentionally
-// lightweight and only logs on the client side.
-if (typeof window !== "undefined") {
-  try {
-    // eslint-disable-next-line no-console
-    console.info("[api-client] API_BASE:", API_BASE, "NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL)
-  } catch (_) {
-    // ignore
-  }
-}
+const API_BASE = "https://skinlinkbackendapp-production.up.railway.app".replace(/\/+$/, "")
 
 export const TOKEN_KEY = "skinlink.token"
 export const SESSION_KEY = "skinlink.session.v1"
@@ -71,6 +57,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   if (activeTenantId) headers["X-Tenant-Id"] = activeTenantId
 
   const res = await fetch(apiUrl(path), { ...init, headers })
+
   if (!res.ok) {
     let msg = `API error ${res.status}`
     try {
@@ -83,6 +70,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
     }
     throw new Error(msg)
   }
+
   if (res.status === 204) return {} as T
   const text = await res.text()
   if (!text) return {} as T
@@ -337,7 +325,6 @@ export async function apiUploadImage(file: File): Promise<string> {
 export async function apiUploadAccountDocument(file: File): Promise<string> {
   const form = new FormData()
   form.append("file", file)
-
   const res = await fetch(`${API_BASE}/api/v1/applications/upload-document`, {
     method: "POST",
     body: form,
@@ -395,6 +382,7 @@ export function normaliseAiField(raw: unknown): AiAnalysis | undefined {
   const iq = (r.image_quality ?? {}) as Record<string, unknown>
   const iqScore = typeof iq.score === "number" ? iq.score : 70
   const iqIssues: string[] = Array.isArray(iq.issues) ? (iq.issues as string[]) : []
+
   if (iq.rating === "poor") iqIssues.unshift("Image quality poor — retake recommended")
   if (iq.focus === false) iqIssues.push("Motion blur or out-of-focus detected")
   if (iq.lighting === false) iqIssues.push("Uneven lighting or glare present")
@@ -403,6 +391,7 @@ export function normaliseAiField(raw: unknown): AiAnalysis | undefined {
   const rawConds = Array.isArray(r.possible_conditions)
     ? (r.possible_conditions as Array<Record<string, unknown>>)
     : []
+
   const differentials = rawConds.map((c) => {
     const prob = _likelihoodToProb(c.likelihood as string, c.probability as number | null)
     return {
@@ -426,6 +415,7 @@ export function normaliseAiField(raw: unknown): AiAnalysis | undefined {
   } else {
     recommendedAction = "Suitable for teledermatology management. Specialist review recommended."
   }
+
   if (nextStep === "additional_images") {
     recommendedAction += " Additional well-lit images requested before full assessment."
   }
