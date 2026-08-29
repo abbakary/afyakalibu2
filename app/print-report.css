@@ -1,0 +1,313 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   SkinLink Universal Print Stylesheet
+   Applied when window.print() is triggered on /reports or any page.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm 12mm 12mm;
+  }
+
+  /* Ensure background colors and gradients are printed */
+  *, *:before, *:after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Reset all scrolling containers so the full document flows onto pages */
+  html, body {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+    font-size: 9.5pt !important;
+  }
+
+  /* Unconstrain Next.js layout wrappers */
+  div, main, section, article {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Hide app navigation, headers, sidebars, toast popups, and buttons */
+  .no-print,
+  aside,
+  nav,
+  header,
+  button,
+  [role="navigation"],
+  [data-sidebar],
+  .mobile-nav,
+  .toaster,
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+
+  /* Ensure root container is clean */
+  #skinlink-report-root {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  /* ── Report wrapper ── */
+  .report-page {
+    display: block !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Page break rules */
+  .page-break-before { page-break-before: always; break-before: page; }
+  .page-break-after  { page-break-after: always; break-after: page; }
+  .no-break, .chart-box, .report-cover, .kpi-strip, .data-table tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* ── Cover header banner ── */
+  .report-cover {
+    display: block !important;
+    background: linear-gradient(135deg, #0c2340 0%, #1f7a8c 100%) !important;
+    color: #ffffff !important;
+    padding: 16pt 20pt !important;
+    border-radius: 6pt !important;
+    margin-bottom: 12pt !important;
+  }
+  .report-cover h1 {
+    font-size: 18pt !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    margin: 0 0 3pt 0 !important;
+  }
+  .report-cover p {
+    font-size: 8.5pt !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+    margin: 0 !important;
+  }
+  .report-cover .meta {
+    margin-top: 8pt !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 14pt !important;
+    font-size: 7.5pt !important;
+    color: rgba(255, 255, 255, 0.75) !important;
+  }
+  .report-cover .meta span strong { color: #ffffff !important; }
+
+  /* ── KPI Grid ── */
+  .kpi-strip {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 6pt !important;
+    margin-bottom: 12pt !important;
+  }
+  .kpi-card {
+    display: block !important;
+    border: 1pt solid #e2e8f0 !important;
+    border-radius: 5pt !important;
+    padding: 8pt 10pt !important;
+    background: #f8fafc !important;
+  }
+  .kpi-card .kpi-value {
+    font-size: 16pt !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    line-height: 1 !important;
+  }
+  .kpi-card .kpi-label {
+    font-size: 7pt !important;
+    color: #64748b !important;
+    margin-top: 3pt !important;
+    font-weight: 600 !important;
+  }
+  .kpi-card.tone-primary  { border-left: 3.5pt solid #1f7a8c !important; }
+  .kpi-card.tone-success  { border-left: 3.5pt solid #16a34a !important; }
+  .kpi-card.tone-warning  { border-left: 3.5pt solid #f59e0b !important; }
+  .kpi-card.tone-danger   { border-left: 3.5pt solid #dc2626 !important; }
+
+  /* ── Section headings ── */
+  .section-heading {
+    display: block !important;
+    font-size: 8.5pt !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    color: #1f7a8c !important;
+    border-bottom: 1pt solid #e2e8f0 !important;
+    padding-bottom: 2.5pt !important;
+    margin: 12pt 0 6pt !important;
+  }
+
+  /* ── Grids ── */
+  .print\:grid { display: grid !important; }
+  .print\:block { display: block !important; }
+  .print\:flex { display: flex !important; }
+  .two-col, .print\:two-col {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8pt !important;
+    margin-bottom: 10pt !important;
+  }
+  .three-col, .print\:three-col {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr !important;
+    gap: 6pt !important;
+    margin-bottom: 10pt !important;
+  }
+
+  /* ── Chart & Summary Boxes ── */
+  .chart-box {
+    display: block !important;
+    border: 1pt solid #e2e8f0 !important;
+    border-radius: 5pt !important;
+    padding: 8pt 10pt !important;
+    background: #ffffff !important;
+  }
+  .chart-box .chart-title {
+    font-size: 8.5pt !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    margin-bottom: 2pt !important;
+  }
+  .chart-box .chart-sub {
+    font-size: 7pt !important;
+    color: #64748b !important;
+    margin-bottom: 6pt !important;
+  }
+
+  /* ── Horizontal Progress Bars ── */
+  .hbar-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 5pt !important;
+    margin-bottom: 4pt !important;
+    font-size: 7.5pt !important;
+  }
+  .hbar-label {
+    width: 95pt !important;
+    color: #334155 !important;
+    flex-shrink: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  .hbar-track {
+    flex: 1 !important;
+    height: 6pt !important;
+    background: #f1f5f9 !important;
+    border-radius: 3pt !important;
+    overflow: hidden !important;
+  }
+  .hbar-fill {
+    height: 100% !important;
+    border-radius: 3pt !important;
+  }
+  .hbar-value {
+    width: 20pt !important;
+    text-align: right !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+  }
+
+  /* ── Tables ── */
+  .data-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 7.5pt !important;
+    margin-top: 4pt !important;
+  }
+  .data-table th {
+    background: #0c2340 !important;
+    color: #ffffff !important;
+    padding: 4pt 6pt !important;
+    text-align: left !important;
+    font-weight: 700 !important;
+    font-size: 7pt !important;
+  }
+  .data-table td {
+    padding: 4pt 6pt !important;
+    border-bottom: 0.5pt solid #e2e8f0 !important;
+    color: #334155 !important;
+  }
+  .data-table tr:nth-child(even) td {
+    background: #f8fafc !important;
+  }
+  .data-table .num {
+    text-align: right !important;
+    font-weight: 600 !important;
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-block !important;
+    border-radius: 2.5pt !important;
+    padding: 1pt 4pt !important;
+    font-size: 6.5pt !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+  }
+  .badge-green { background: #dcfce7 !important; color: #166534 !important; }
+  .badge-amber { background: #fef3c7 !important; color: #92400e !important; }
+  .badge-red   { background: #fee2e2 !important; color: #991b1b !important; }
+  .badge-blue  { background: #dbeafe !important; color: #1e40af !important; }
+  .badge-teal  { background: #ccfbf1 !important; color: #0f766e !important; }
+
+  /* ── Insights panel ── */
+  .insights-box {
+    display: block !important;
+    border: 1pt solid #e2e8f0 !important;
+    border-radius: 5pt !important;
+    overflow: hidden !important;
+    margin-bottom: 10pt !important;
+  }
+  .insights-header {
+    background: #f0f9ff !important;
+    padding: 5pt 8pt !important;
+    font-size: 8pt !important;
+    font-weight: 700 !important;
+    color: #0369a1 !important;
+    border-bottom: 1pt solid #bae6fd !important;
+  }
+  .insight-row {
+    padding: 5pt 8pt !important;
+    border-bottom: 0.5pt solid #f1f5f9 !important;
+    display: flex !important;
+    gap: 6pt !important;
+    align-items: flex-start !important;
+  }
+  .insight-title {
+    font-size: 7.5pt !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+  }
+  .insight-body {
+    font-size: 7pt !important;
+    color: #64748b !important;
+    margin-top: 1pt !important;
+  }
+
+  /* ── Report Footer ── */
+  .report-footer {
+    display: flex !important;
+    border-top: 1pt solid #e2e8f0 !important;
+    padding-top: 6pt !important;
+    margin-top: 12pt !important;
+    justify-content: space-between !important;
+    font-size: 7pt !important;
+    color: #94a3b8 !important;
+  }
+  .report-footer .brand { font-weight: 700 !important; color: #1f7a8c !important; }
+}

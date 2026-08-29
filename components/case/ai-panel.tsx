@@ -1,0 +1,121 @@
+"use client"
+
+import { Sparkles, AlertTriangle, ImageIcon, Loader2, ShieldAlert } from "lucide-react"
+import type { AiAnalysis, DermCase } from "@/lib/types"
+import { Button } from "@/components/ui/button"
+import { ConfidenceBadge, PriorityBadge } from "@/components/status-badge"
+import { Progress } from "@/components/ui/progress"
+
+// Presents optional AI decision support. Per the concept doc, AI output is
+// clearly separated from the specialist's final assessment and never blocks it.
+export function AiPanel({
+  analysis,
+  loading,
+  onRun,
+  compact,
+}: {
+  analysis?: AiAnalysis
+  loading?: boolean
+  onRun?: () => void
+  compact?: boolean
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-card">
+      <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
+        <div className="flex items-center gap-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Sparkles className="h-4 w-4" />
+          </span>
+          <div>
+            <h3 className="text-sm font-semibold leading-tight">AI-assist suggestion</h3>
+            <p className="text-[11px] text-muted-foreground">Decision support · not a diagnosis</p>
+          </div>
+        </div>
+        <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent-foreground">
+          Beta
+        </span>
+      </div>
+
+      {!analysis && !loading && (
+        <div className="px-4 py-6 text-center">
+          <p className="text-sm text-muted-foreground">No analysis yet for this case.</p>
+          {onRun && (
+            <Button size="sm" className="mt-3" onClick={onRun}>
+              <Sparkles className="h-4 w-4" /> Run AI analysis
+            </Button>
+          )}
+        </div>
+      )}
+
+      {loading && (
+        <div className="flex items-center justify-center gap-2 px-4 py-8 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" /> Analyzing images and clinical data…
+        </div>
+      )}
+
+      {analysis && !loading && (
+        <div className="space-y-4 p-4">
+          {/* Image quality */}
+          <div>
+            <div className="mb-1.5 flex items-center justify-between text-xs">
+              <span className="flex items-center gap-1.5 font-medium text-muted-foreground">
+                <ImageIcon className="h-3.5 w-3.5" /> Image quality
+              </span>
+              <span className="font-semibold">{analysis.imageQualityAverage ?? 0}/100</span>
+            </div>
+            <Progress value={analysis.imageQualityAverage ?? 0} className="h-1.5" />
+            {analysis.imageQualityFlags?.length > 0 && (
+              <ul className="mt-2 space-y-1">
+                {analysis.imageQualityFlags.map((f, i) => (
+                  <li key={i} className="flex items-start gap-1.5 text-[11px] text-warning-foreground">
+                    <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" /> {f}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Differentials */}
+          <div>
+            <p className="mb-2 text-xs font-medium text-muted-foreground">Top differential</p>
+            <ol className="space-y-2.5">
+              {(analysis.differentials ?? []).map((d, i) => (
+                <li key={i}>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-1.5 text-sm font-medium">
+                      <span className="text-muted-foreground">{i + 1}.</span>
+                      {d.condition}
+                    </span>
+                    <ConfidenceBadge level={d.confidence} />
+                  </div>
+                  <div className="mt-1 flex items-center gap-2">
+                    <Progress value={d.probability} className="h-1" />
+                    <span className="w-9 shrink-0 text-right text-[11px] tabular-nums text-muted-foreground">
+                      {d.probability}%
+                    </span>
+                  </div>
+                  {!compact && <p className="mt-1 text-[11px] leading-snug text-muted-foreground">{d.rationale}</p>}
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          {/* Recommendation + urgency */}
+          <div className="rounded-lg bg-muted/60 p-3">
+            <div className="mb-1.5 flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-xs font-semibold">
+                <ShieldAlert className="h-3.5 w-3.5 text-primary" /> Suggested urgency
+              </span>
+              <PriorityBadge priority={analysis.urgencyFlag} />
+            </div>
+            <p className="text-xs leading-snug text-muted-foreground">{analysis.recommendedAction}</p>
+          </div>
+
+          <p className="text-[10px] leading-snug text-muted-foreground">
+            Generated by {analysis.model}. The responsible specialist must confirm or reject this suggestion.
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
