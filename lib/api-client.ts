@@ -16,6 +16,18 @@ import type {
 const rawApiBase = process.env.NEXT_PUBLIC_API_URL ?? "https://skinlinkbackendapp-production.up.railway.app"
 const API_BASE = rawApiBase.replace(/\/+$/, "")
 
+// Debugging aid: log resolved API base at runtime in the browser so we can
+// confirm what value Vercel inlined at build time. This is intentionally
+// lightweight and only logs on the client side.
+if (typeof window !== "undefined") {
+  try {
+    // eslint-disable-next-line no-console
+    console.info("[api-client] API_BASE:", API_BASE, "NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL)
+  } catch (_) {
+    // ignore
+  }
+}
+
 export const TOKEN_KEY = "skinlink.token"
 export const SESSION_KEY = "skinlink.session.v1"
 
