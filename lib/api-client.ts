@@ -1,6 +1,5 @@
 /**
  * SkinLink REST API client for the Next.js web app.
- * API base URL is hardcoded — no .env / environment variable needed.
  */
 import type {
   DermCase,
@@ -12,7 +11,10 @@ import type {
   User,
 } from "./types"
 
-const API_BASE = "https://skinlinkbackendapp-production.up.railway.app".replace(/\/+$/, "")
+const API_BASE = (
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://skinlinkbackendapp-production.up.railway.app"
+).replace(/\/+$/, "")
 
 export const TOKEN_KEY = "skinlink.token"
 export const SESSION_KEY = "skinlink.session.v1"
@@ -25,6 +27,21 @@ export function isApiEnabled() {
 
 export function getApiBase() {
   return API_BASE
+}
+
+/** Join a relative /uploads/... path with the API origin. Leave absolute URLs alone. */
+export function joinApiUrl(url: string): string {
+  if (!url) return url
+  if (
+    url.startsWith("http://") ||
+    url.startsWith("https://") ||
+    url.startsWith("blob:") ||
+    url.startsWith("data:")
+  ) {
+    return url
+  }
+  const path = url.startsWith("/") ? url : `/${url}`
+  return `${API_BASE}${path}`
 }
 
 export function setApiTenantId(id: string | null) {
@@ -319,7 +336,7 @@ export async function apiUploadImage(file: File): Promise<string> {
   })
   if (!res.ok) throw new Error("Image upload failed")
   const data = (await res.json()) as { url: string }
-  return `${API_BASE}${data.url}`
+  return joinApiUrl(data.url)
 }
 
 export async function apiUploadAccountDocument(file: File): Promise<string> {
@@ -331,7 +348,7 @@ export async function apiUploadAccountDocument(file: File): Promise<string> {
   })
   if (!res.ok) throw new Error("Document upload failed")
   const data = (await res.json()) as { url: string }
-  return `${API_BASE}${data.url}`
+  return joinApiUrl(data.url)
 }
 
 // ---------------------------------------------------------------------------

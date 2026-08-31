@@ -1,4 +1,9 @@
 /** @type {import('next').NextConfig} */
+const API_ORIGIN = (
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://skinlinkbackendapp-production.up.railway.app"
+).replace(/\/+$/, "")
+
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
@@ -16,6 +21,14 @@ const nextConfig = {
       // Production / staging — any HTTPS host serving uploads
       { protocol: "https", hostname: "**", pathname: "/uploads/**" },
     ],
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/uploads/:path*",
+        destination: `${API_ORIGIN}/uploads/:path*`,
+      },
+    ]
   },
 }
 

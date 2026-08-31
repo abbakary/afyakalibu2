@@ -290,6 +290,18 @@ class AppState extends ChangeNotifier {
           .replaceAll('localhost:8000', '10.0.2.2:8000')
           .replaceAll('127.0.0.1:8000', '10.0.2.2:8000');
     }
+    if (clean.startsWith('http://') || clean.startsWith('https://')) {
+      try {
+        final parsed = Uri.parse(clean);
+        final host = parsed.host;
+        final isLoopback =
+            host == 'localhost' || host == '127.0.0.1' || host == '10.0.2.2';
+        if (parsed.path.startsWith('/uploads/') && isLoopback) {
+          return '${api.baseUrl}${parsed.path}';
+        }
+      } catch (_) {}
+      return clean;
+    }
     if (clean.startsWith('/')) {
       return '${api.baseUrl}$clean';
     }

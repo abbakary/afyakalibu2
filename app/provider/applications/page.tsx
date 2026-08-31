@@ -13,7 +13,7 @@ import { PageHeader } from "@/components/shell/page-header"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { formatDate } from "@/lib/format"
-import { cn } from "@/lib/utils"
+import { cn, formatImageUrl } from "@/lib/utils"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface DocumentAttachment {
@@ -520,7 +520,7 @@ function ApplicationCard({
       {/* Row Header */}
       <button onClick={onToggle} className="flex w-full items-center gap-4 px-5 py-4 text-left hover:bg-muted/30 transition-colors">
         {app.passportPhotoUrl ? (
-          <img src={app.passportPhotoUrl} alt={name} className="h-11 w-11 shrink-0 rounded-xl object-cover border border-border" />
+          <img src={formatImageUrl(app.passportPhotoUrl)} alt={name} className="h-11 w-11 shrink-0 rounded-xl object-cover border border-border" />
         ) : (
           <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-xl font-bold",
             isOrg ? "bg-indigo-100 text-indigo-700"
@@ -730,13 +730,13 @@ function ApplicationCard({
                     <div className="flex-1 flex items-center justify-center bg-slate-900 rounded-lg overflow-auto p-2 min-h-[300px]">
                       {selectedDocForWorkspace.url.match(/\.(jpg|jpeg|png|webp|gif)$/i) || selectedDocForWorkspace.type === "passport_photo" ? (
                         <img
-                          src={selectedDocForWorkspace.url}
+                          src={formatImageUrl(selectedDocForWorkspace.url)}
                           alt={selectedDocForWorkspace.label}
                           className="max-h-[320px] w-auto object-contain rounded border border-slate-800 shadow-xl"
                         />
                       ) : (
                         <iframe
-                          src={selectedDocForWorkspace.url}
+                          src={formatImageUrl(selectedDocForWorkspace.url)}
                           title={selectedDocForWorkspace.label}
                           className="w-full h-[320px] rounded border-0 bg-white"
                         />
@@ -947,15 +947,15 @@ function InPageDocumentWorkspaceModal({ doc, onClose }: { doc: DocumentAttachmen
 
         <div className="flex-1 overflow-auto rounded-xl border border-slate-200 bg-slate-950 flex items-center justify-center p-4 min-h-[400px]">
           {isImage ? (
-            <img src={doc.url} alt={doc.label} className="max-h-[550px] w-auto rounded-lg object-contain shadow-2xl" />
+            <img src={formatImageUrl(doc.url)} alt={doc.label} className="max-h-[550px] w-auto rounded-lg object-contain shadow-2xl" />
           ) : (
-            <iframe src={doc.url} title={doc.label} className="w-full h-[550px] rounded-lg border-0 bg-white" />
+            <iframe src={formatImageUrl(doc.url)} title={doc.label} className="w-full h-[550px] rounded-lg border-0 bg-white" />
           )}
         </div>
 
         <div className="flex items-center justify-between pt-2 border-t text-xs">
           <span className="text-slate-500">Document Type: <strong className="text-slate-800">{doc.type}</strong></span>
-          <a href={doc.url} download className="text-primary font-semibold hover:underline flex items-center gap-1">
+          <a href={formatImageUrl(doc.url)} download className="text-primary font-semibold hover:underline flex items-center gap-1">
             <ExternalLink className="h-3.5 w-3.5" /> Download File
           </a>
         </div>

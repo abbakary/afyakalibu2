@@ -22,8 +22,16 @@ class ApiService {
   String? _token;
 
   static String _defaultBaseUrl() {
-    if (!kIsWeb && Platform.isAndroid) return 'http://10.0.2.2:8000';
-    return 'http://127.0.0.1:8000';
+    const fromEnv = String.fromEnvironment('API_BASE_URL', defaultValue: '');
+    if (fromEnv.isNotEmpty) {
+      return fromEnv.replaceAll(RegExp(r'/+$'), '');
+    }
+    // Release builds talk to the hosted API. Local debug still uses the emulator/loopback.
+    if (kDebugMode) {
+      if (!kIsWeb && Platform.isAndroid) return 'http://10.0.2.2:8000';
+      return 'http://127.0.0.1:8000';
+    }
+    return 'https://skinlinkbackendapp-production.up.railway.app';
   }
 
   void setToken(String? token) => _token = token;
@@ -118,7 +126,9 @@ class ApiService {
     final res = await http.Response.fromStream(streamed);
     final data = await _decode(res);
     final url = data['url'] as String;
-    return '$baseUrl$url';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    if (url.startsWith('/')) return '$baseUrl$url';
+    return '$baseUrl/$url';
   }
 
   /// Run AI image-quality check for a single uploaded image.
